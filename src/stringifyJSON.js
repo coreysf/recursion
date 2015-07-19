@@ -17,36 +17,57 @@ var stringifyJSON = function(obj) {
 			return 'null';
 		}
 
-		if (Array.isArray(obj) && obj.length == 0) {
-			return '[]';
+
+	var primValues = function(prim) {
+		if (typeof prim === 'string') {
+			return '"' + prim.toString() + '"';
 		}
 
-	var primValues = function(obj) {
-		if (typeof obj === 'string') {
-			return '"' + obj.toString() + '"';
+		if (typeof prim === 'boolean' || typeof prim === 'number') {
+			return prim.toString();
 		}
 
-		if (typeof obj === 'boolean' || typeof obj === 'number') {
-			return obj.toString();
-		}
-
-		if (obj === null && typeof obj === 'object') {
+		if (prim === null && typeof prim === 'object') {
 			return 'null';
-		}
-
-		if (Array.isArray(obj) && obj.length == 0) {
-			return '[]';
 		}
 	};
 
+	var arrStringFunc = function(arr) {
+			arrString = '[';
+			for (var i = 0; i < arr.length - 1; i++) {
+				if (Array.isArray(arr[i])) {
+					console.log(arrString);
+					arrString += arrStringFunc(arr[i]) + ',';
+				}
+				else {
+//					console.log(arrString);
+					arrString += primValues(arr[i]) + ',';
+				}
+			}
+
+			if (Array.isArray(arr[arr.length-1])) {
+				arrString += arrStringFunc(arr[arr.length-1]);
+			}
+			else {
+				arrString += primValues(arr[arr.length - 1]) + ']';
+			}
+			
+			return arrString;
+	};
+
+
 	if (Array.isArray(obj)) {
-		arrString = '[';
-		for (var i = 0; i < obj.length - 1; i++) {
-			arrString += primValues(obj[i]) + ',';
+		if (obj.length == 0) {
+			return '[]';
 		}
-		arrString += primValues(obj[obj.length - 1]) + ']';
-		return arrString;
+		else if (obj.length == 1) {
+			return '[' + primValues(obj[0]) + ']';
+		}
+		else {
+			return arrStringFunc(obj);
+		}
 	}
+
 
 	if (typeof obj === 'object')  {
 		objString = '{ ';
