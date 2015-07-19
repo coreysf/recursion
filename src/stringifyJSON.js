@@ -5,29 +5,46 @@
 
 var stringifyJSON = function(obj) {
 
+		if (typeof obj === 'string') {
+			return '"' + obj.toString() + '"';
+		}
 
-	if (typeof obj === 'string') {
-		return '"' + obj.toString() + '"';
-	}
+		if (typeof obj === 'boolean' || typeof obj === 'number') {
+			return obj.toString();
+		}
 
-	if (typeof obj === 'boolean' || typeof obj === 'number') {
-		return obj.toString();
-	}
+		if (obj === null && typeof obj === 'object') {
+			return 'null';
+		}
 
-	if (obj === null && typeof obj === 'object') {
-		return 'null';
-	}
+		if (Array.isArray(obj) && obj.length == 0) {
+			return '[]';
+		}
 
-	if (Array.isArray(obj) && obj.length == 0) {
-		return '[]';
-	}
+	var primValues = function(obj) {
+		if (typeof obj === 'string') {
+			return '"' + obj.toString() + '"';
+		}
+
+		if (typeof obj === 'boolean' || typeof obj === 'number') {
+			return obj.toString();
+		}
+
+		if (obj === null && typeof obj === 'object') {
+			return 'null';
+		}
+
+		if (Array.isArray(obj) && obj.length == 0) {
+			return '[]';
+		}
+	};
 
 	if (Array.isArray(obj)) {
 		arrString = '[';
 		for (var i = 0; i < obj.length - 1; i++) {
-			arrString += obj[i] + ', ';
+			arrString += primValues(obj[i]) + ',';
 		}
-		arrString += obj[obj.length - 1] + ']';
+		arrString += primValues(obj[obj.length - 1]) + ']';
 		return arrString;
 	}
 
