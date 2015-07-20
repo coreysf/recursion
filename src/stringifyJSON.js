@@ -74,18 +74,32 @@ var stringifyJSON = function(obj) {
 	}
 
 
-	if (typeof obj === 'object')  {
+		
+	var objStringFunc = function(collection) {
 		objString = '{';
-		for (var key in obj) {
-			objString += '"' + key + '":';
-			if (typeof obj[key] === 'string') {
-				objString += '"';
-			} 
-			objString += obj[key];
-			if (typeof obj[key] === 'string') {
-				objString += '"';
+		for (var key in collection) {
+			if ((typeof collection[key] === 'object' && !Array.isArray(collection[key])) && collection[key] !== null) {
+				objString += '"' + key + '":';
+				objString += objStringFunc(collection[key]);
 			}
-			objString += ',';
+
+			else if (Array.isArray(collection[key])) {
+				console.log(true);
+				objString += '"' + key + '":';
+				objString += arrStringFunc(collection[key]);
+			}
+
+			else {
+				objString += '"' + key + '":';
+				if (typeof collection[key] === 'string') {
+					objString += '"';
+				} 
+				objString += collection[key];
+				if (typeof collection[key] === 'string') {
+					objString += '"';
+				}
+				objString += ',';
+			}
 		}
 
 		objString += '}';
@@ -93,5 +107,9 @@ var stringifyJSON = function(obj) {
 		console.log(objString);
 
 		return objString;
+	}
+
+	if (typeof obj === 'object')  {
+		return objStringFunc(obj);
 	}
 };
