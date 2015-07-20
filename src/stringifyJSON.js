@@ -33,15 +33,19 @@ var stringifyJSON = function(obj) {
 	};
 
 	var arrStringFunc = function(arr) {
-			arrString = '[';
+			arrString = '';
 			for (var i = 0; i < arr.length - 1; i++) {
 				if (Array.isArray(arr[i])) {
-					console.log(arrString);
+					if (arr[i].length == 0) {
+						arrString += '[],';
+					}
+					else {
 					arrString += arrStringFunc(arr[i]) + ',';
+					}
 				}
 				else {
-//					console.log(arrString);
 					arrString += primValues(arr[i]) + ',';
+					console.log(arrString);
 				}
 			}
 
@@ -49,10 +53,11 @@ var stringifyJSON = function(obj) {
 				arrString += arrStringFunc(arr[arr.length-1]);
 			}
 			else {
-				arrString += primValues(arr[arr.length - 1]) + ']';
+				arrString += primValues(arr[arr.length - 1]);
+				console.log(arrString);
 			}
-			
-			return arrString;
+
+			return '[' + arrString + ']';
 	};
 
 
@@ -60,9 +65,9 @@ var stringifyJSON = function(obj) {
 		if (obj.length == 0) {
 			return '[]';
 		}
-		else if (obj.length == 1) {
-			return '[' + primValues(obj[0]) + ']';
-		}
+		// else if (obj.length == 1) {
+		// 	return '[' + primValues(obj[0]) + ']';
+		// }
 		else {
 			return arrStringFunc(obj);
 		}
@@ -70,9 +75,9 @@ var stringifyJSON = function(obj) {
 
 
 	if (typeof obj === 'object')  {
-		objString = '{ ';
+		objString = '{';
 		for (var key in obj) {
-			objString += '"' + key + '": ';
+			objString += '"' + key + '":';
 			if (typeof obj[key] === 'string') {
 				objString += '"';
 			} 
@@ -80,7 +85,13 @@ var stringifyJSON = function(obj) {
 			if (typeof obj[key] === 'string') {
 				objString += '"';
 			}
-			objString += ', ';
+			objString += ',';
 		}
+
+		objString += '}';
+		objString = objString.replace(',}', '}');
+		console.log(objString);
+
+		return objString;
 	}
 };
