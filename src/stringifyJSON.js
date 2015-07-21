@@ -3,22 +3,27 @@
 
 // but you don't so you're going to write it from scratch:
 
+/*
+BRIEF DESCRIPTION OF SOLUTION:
+stringifyJSON() stringifies the passed-in argument using 3 sub-functions - 
+1 to stringify primitive values & null, 1 for arrays, and 1 for objects.
+*/
+
 var stringifyJSON = function(obj) {
 
-		if (typeof obj === 'string') {
-			return '"' + obj.toString() + '"';
-		}
+	if ((typeof obj === 'string' || typeof obj === 'boolean' || typeof obj === 'number') || (obj === null && typeof obj === 'object')) {
+		return primStringFunc(obj);
+	}
 
-		if (typeof obj === 'boolean' || typeof obj === 'number') {
-			return obj.toString();
-		}
+	if (Array.isArray(obj)) {
+		return arrStringFunc(obj);
+	}
 
-		if (obj === null && typeof obj === 'object') {
-			return 'null';
-		}
+	if (typeof obj === 'object')  {
+		return objStringFunc(obj);
+	}
 
-
-	var primValues = function(prim) {
+	function primStringFunc(prim) {  // The output of this function is dependent on the data type of the passed-in argument.
 		if (typeof prim === 'string') {
 			return '"' + prim.toString() + '"';
 		}
@@ -32,102 +37,53 @@ var stringifyJSON = function(obj) {
 		}
 	};
 
-	function arrStringFunc (arr) {
-			arrString = '';
-			for (var i = 0; i < arr.length - 1; i++) {
-				if (Array.isArray(arr[i])) {
-					if (arr[i].length == 0) {
-						arrString += '[],';
-					}
-					else {
-					arrString += arrStringFunc(arr[i]) + ',';
-					}
-				}
-
-				else if (typeof arr[i] === 'object' && !Array.isArray(arr[i])) {
-					arrString += objStringFunc(arr[i]) + ',';
-				}
-
-				else {
-					arrString += primValues(arr[i]) + ',';
-					console.log(arrString);
-				}
+	function arrStringFunc(arr) {		
+		arrString = '[';
+		for (var i = 0; i < arr.length; i++) {  // If the array is empty, this code is skipped
+			if (Array.isArray(arr[i])) {
+				arrString += arrStringFunc(arr[i]) + ','; // Processes sub-arrays within the array using recursion
 			}
 
-			if (Array.isArray(arr[arr.length-1])) {
-				arrString += arrStringFunc(arr[arr.length-1]);
-			}
-
-			else if (typeof arr[arr.length-1] === 'object' && !Array.isArray(arr[arr.length-1])) {
-				arrString += objStringFunc(arr[arr.length-1]);
+			else if (typeof arr[i] === 'object' && !Array.isArray(arr[i])) {
+				arrString += objStringFunc(arr[i]) + ','; // Processes objects within the array using our built function
 			}
 
 			else {
-				arrString += primValues(arr[arr.length - 1]);
-				console.log(arrString);
+				arrString += primStringFunc(arr[i]) + ',';  // Processes primitive data types (and null) within the array using our built function
 			}
+		}
 
-			return '[' + arrString + ']';
+		arrString += ']';
+		arrString = arrString.replace(',]', ']');  // Removes final comma in list of array elements
+
+		return arrString;
 	};
-
-
-	if (Array.isArray(obj)) {
-		if (obj.length == 0) {
-			return '[]';
-		}
-		// else if (obj.length == 1) {
-		// 	return '[' + primValues(obj[0]) + ']';
-		// }
-		else {
-			return arrStringFunc(obj);
-		}
-	}
-
-
 		
-	function objStringFunc (collection) {
+	function objStringFunc(collection) {
 		objString = '{';
-		for (var key in collection) {
-			if (collection[key] !== undefined && typeof collection[key] !== 'function') {
+		for (var key in collection) {  // If the object is empty, this code is skipped
+			if (collection[key] !== undefined && typeof collection[key] !== 'function') {  // If an object property value is undefined or consists of a function, this code is skipped
 				if ((typeof collection[key] === 'object' && !Array.isArray(collection[key])) && collection[key] !== null) {
-					objString += '"' + key + '":';
-					objString += objStringFunc(collection[key]) + ',';
-				}
-
-				else if (Array.isArray(collection[key]) && collection[key].length == 0) {
-					console.log(true);
-					objString += '"' + key + '":';
-					objString += '[],';
+					objString += '"' + key + '":' + objStringFunc(collection[key]) + ',';  // Processes nested objects within the object using recursion
 				}
 
 				else if (Array.isArray(collection[key])) {
-					console.log(true);
-					objString += '"' + key + '":';
-					objString += arrStringFunc(collection[key]) + ',';
+					objString += '"' + key + '":' + arrStringFunc(collection[key]) + ',';  // Processes property values consisting of arrays using our built function
 				}
 
 				else {
-					objString += '"' + key + '":';
-					if (typeof collection[key] === 'string') {
-						objString += '"';
-					} 
-					objString += collection[key];
-					if (typeof collection[key] === 'string') {
-						objString += '"';
-					}
-					objString += ',';
+					objString += '"' + key + '":' + stringQuotes(collection[key]) + collection[key] + stringQuotes(collection[key]) + ',';  // Ensures that string property values includes the requisite quotation marks
 				}
 			}
 		}
 
 		objString += '}';
-		objString = objString.replace(',}', '}');
-		console.log(objString);
+		objString = objString.replace(',}', '}'); // Removes final comma in list of properties
 
 		return objString;
 	}
 
-	if (typeof obj === 'object')  {
-		return objStringFunc(obj);
+	function stringQuotes(val) {  // This function is used within objStringFunc() to format property values consisting of strings
+		return typeof val === 'string' ? '"' : '';
 	}
 };
