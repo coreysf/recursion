@@ -49,7 +49,7 @@ var stringifyJSON = function(obj) {
 			}
 
 			else {
-				arrString += primStringFunc(arr[i]) + ',';  // Processes primitive data types (and null) within the array using our built function
+				arrString += primStringFunc(arr[i]) + ',';  // Processes primitive data types and null within the array using our built function
 			}
 		}
 
@@ -72,7 +72,7 @@ var stringifyJSON = function(obj) {
 				}
 
 				else {
-					objString += '"' + key + '":' + stringQuotes(collection[key]) + collection[key] + stringQuotes(collection[key]) + ',';  // Ensures that string property values includes the requisite quotation marks
+					objString += '"' + key + '":' + primStringFunc(collection[key]) + ',';  // Processes property values consisting of primitive data types and null using our built function
 				}
 			}
 		}
@@ -81,9 +81,5 @@ var stringifyJSON = function(obj) {
 		objString = objString.replace(',}', '}'); // Removes final comma in list of properties
 
 		return objString;
-	}
-
-	function stringQuotes(val) {  // This function is used within objStringFunc() to format property values consisting of strings
-		return typeof val === 'string' ? '"' : '';
 	}
 };
